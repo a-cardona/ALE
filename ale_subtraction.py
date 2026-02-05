@@ -28,7 +28,7 @@ def run_subtraction(
     )
     sub_results = sub.fit(dset1, dset2)
 
-    sub_corr = sub_results.correct_fwe_montecarlo()
+    sub_corr = sub.correct_fwe_montecarlo(sub_results)
 
     prefix = f"{name1}_vs_{name2}"
     outdir = os.path.join(
