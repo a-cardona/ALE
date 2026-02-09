@@ -13,43 +13,58 @@ attention_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Attention.txt")
 cognitive_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Cognitive_PT.txt")
 spatial_dset   = io.convert_sleuth_to_dataset("cleaned_sleuth/Spatial_PT_lvl2.txt")
 affective_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Affective_PT.txt")
-
-# %%
+#data set check im desperate 
+print("\n=== DATASET INFO ===")
+for name, dset in [("Attention", attention_dset), 
+                    ("Cognitive", cognitive_dset),
+                    ("Spatial", spatial_dset),
+                    ("Affective", affective_dset)]:
+    print(f"{name}: {len(dset.ids)} studies")
+    print(f"  Coordinates shape: {dset.coordinates.shape}")
+print("=" * 40 + "\n")
+# 
 def run_subtraction(
     dset1, dset2, name1, name2,
     n_iters=10000,
 ):
+    print(f"\n{'='*50}")
     print(f"Running subtraction: {name1} vs {name2}")
-
+    print(f"Dataset 1: {len(dset1.ids)} studies")
+    print(f"Dataset 2: {len(dset2.ids)} studies")
+    
     sub = ALESubtraction(
         n_iters=n_iters,
         two_sided=True,
         random_state=42
     )
     sub_results = sub.fit(dset1, dset2)
-
-    sub_corr = sub.correct_fwe_montecarlo()
-
+    
+    print(f"Maps in results: {list(sub_results.maps.keys())}")
+    
+    # Call it on the original sub object, passing the results
+    corr =  FWECorrector(method='montecarlo')
+    sub_corr = corr.transform(sub_results)
+    
+    print(f"Maps after correction: {list(sub_corr.maps.keys())}")
+    
     prefix = f"{name1}_vs_{name2}"
     outdir = os.path.join(
         "/home/tur31606@tu.temple.edu/ALE/results",
         prefix
     )
     os.makedirs(outdir, exist_ok=True)
-
-    print(">>> ABOUT TO SAVE MAPS <<<")
-    print("Saving to:", outdir)
-
+    
+    print(">>> SAVING MAPS <<<")
     sub_corr.save_maps(
         output_dir=outdir,
         prefix=prefix
     )
-
-    print(">>> SAVE_MAPS FINISHED <<<")
-    print("Files:", os.listdir(outdir))
-
-    return sub_corr
-
+    
+    files_created = os.listdir(outdir)
+    print(f"Files created: {files_created}")
+    print('='*50 + '\n')
+    
+    return sub_corr 
 # %%
 contrasts = [
     (attention_dset, cognitive_dset, "attention", "cognitive"),
@@ -86,7 +101,7 @@ for contrast_name, sub_corr in results_dict.items():
     )
 
     out_csv = os.path.join(
-        "results",
+        "/home/tur31606@tu.temple.edu/ALE/results",
         contrast_name,
         "clusters.csv"
     )
