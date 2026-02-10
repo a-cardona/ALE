@@ -4,17 +4,18 @@ from nimare.correct import FWECorrector
 from nilearn.reporting import get_clusters_table
 from nimare import io
 import os
-
 # %%
 BASE = os.getcwd()
 print("PWD:", BASE)
+
+# Add dataset info check
+print("\n=== DATASET INFO ===")
 # Load existing ALE coordinate datasets
 attention_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Attention.txt")
 cognitive_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Cognitive_PT.txt")
 spatial_dset   = io.convert_sleuth_to_dataset("cleaned_sleuth/Spatial_PT_lvl2.txt")
 affective_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Affective_PT.txt")
-#data set check im desperate 
-print("\n=== DATASET INFO ===")
+
 for name, dset in [("Attention", attention_dset), 
                     ("Cognitive", cognitive_dset),
                     ("Spatial", spatial_dset),
@@ -22,7 +23,8 @@ for name, dset in [("Attention", attention_dset),
     print(f"{name}: {len(dset.ids)} studies")
     print(f"  Coordinates shape: {dset.coordinates.shape}")
 print("=" * 40 + "\n")
-# 
+
+# %%
 def run_subtraction(
     dset1, dset2, name1, name2,
     n_iters=10000,
@@ -39,7 +41,7 @@ def run_subtraction(
     
     print(f"Maps in results: {list(sub_results.maps.keys())}")
     
-    # Skip correction - the subtraction already used permutation testing
+    # The subtraction already uses permutation testing - no extra correction needed
     sub_corr = sub_results
     
     print(f"Using maps: {list(sub_corr.maps.keys())}")
@@ -62,6 +64,7 @@ def run_subtraction(
     print('='*50 + '\n')
     
     return sub_corr
+
 # %%
 contrasts = [
     (attention_dset, cognitive_dset, "attention", "cognitive"),
@@ -74,29 +77,32 @@ contrasts = [
 
 # %%
 results_dict = {}
-
 for d1, d2, name1, name2 in contrasts:
     key = f"{name1}_vs_{name2}"
     results_dict[key] = run_subtraction(d1, d2, name1, name2)
 
 # %%
-# Generate cluster tables robustly
+# Generate cluster tables using the actual z-map that was created
 for contrast_name, sub_corr in results_dict.items():
-
     if sub_corr is None:
         continue
-
-    # Find the corrected Z map programmatically
+    
+    # Use the actual z-map filename that gets created
     nii_file = os.path.join(
         "/home/tur31606@tu.temple.edu/ALE/results",
         contrast_name,
-        f"{contrast_name}_corr-FWE_z.nii.gz"
+        f"{contrast_name}_z_desc-group1MinusGroup2.nii.gz"  # Fixed filename
     ) 
+    
+    if not os.path.exists(nii_file):
+        print(f"WARNING: Z-map not found for {contrast_name}: {nii_file}")
+        continue
+    
     table = get_clusters_table(
         nii_file,
-        stat_threshold=1.96,  # two-sided
+        stat_threshold=1.96,  # two-sided z > 1.96 (p < 0.05)
     )
-
+    
     out_csv = os.path.join(
         "/home/tur31606@tu.temple.edu/ALE/results",
         contrast_name,
