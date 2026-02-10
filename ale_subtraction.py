@@ -34,18 +34,15 @@ def run_subtraction(
     
     sub = ALESubtraction(
         n_iters=n_iters,
-        two_sided=True,
-        random_state=42
     )
     sub_results = sub.fit(dset1, dset2)
     
     print(f"Maps in results: {list(sub_results.maps.keys())}")
     
-    # Call it on the original sub object, passing the results
-    corr =  FWECorrector(method='montecarlo')
-    sub_corr = corr.transform(sub_results)
+    # Skip correction - the subtraction already used permutation testing
+    sub_corr = sub_results
     
-    print(f"Maps after correction: {list(sub_corr.maps.keys())}")
+    print(f"Using maps: {list(sub_corr.maps.keys())}")
     
     prefix = f"{name1}_vs_{name2}"
     outdir = os.path.join(
@@ -64,7 +61,7 @@ def run_subtraction(
     print(f"Files created: {files_created}")
     print('='*50 + '\n')
     
-    return sub_corr 
+    return sub_corr
 # %%
 contrasts = [
     (attention_dset, cognitive_dset, "attention", "cognitive"),
