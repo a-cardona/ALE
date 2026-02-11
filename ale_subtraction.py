@@ -24,7 +24,7 @@ for name, dset in [("Attention", attention_dset),
     print(f"  Coordinates shape: {dset.coordinates.shape}")
 print("=" * 40 + "\n")
 
-# %%
+# %% subtraction lock in 
 def run_subtraction(
     dset1, dset2, name1, name2,
     n_iters=10000,
@@ -41,7 +41,7 @@ def run_subtraction(
     
     print(f"Maps in results: {list(sub_results.maps.keys())}")
     
-    # The subtraction already uses permutation testing - no extra correction needed
+    # sub corr trouble shoot pls work... 
     sub_corr = sub_results
     
     print(f"Using maps: {list(sub_corr.maps.keys())}")
@@ -65,7 +65,7 @@ def run_subtraction(
     
     return sub_corr
 
-# %%
+#
 contrasts = [
     (attention_dset, cognitive_dset, "attention", "cognitive"),
     (attention_dset, spatial_dset,   "attention", "spatial"),
@@ -75,19 +75,19 @@ contrasts = [
     (spatial_dset,   affective_dset, "spatial", "affective"),
 ]
 
-# %%
+# naming results 
 results_dict = {}
 for d1, d2, name1, name2 in contrasts:
     key = f"{name1}_vs_{name2}"
     results_dict[key] = run_subtraction(d1, d2, name1, name2)
 
-# %%
-# Generate cluster tables using the actual z-map that was created
+# 
+# cluster tables using z-map that was created :P
 for contrast_name, sub_corr in results_dict.items():
     if sub_corr is None:
         continue
     
-    # Use the actual z-map filename that gets created
+    # Use the actual z-map filenam  
     nii_file = os.path.join(
         "/home/tur31606@tu.temple.edu/ALE/results",
         contrast_name,
