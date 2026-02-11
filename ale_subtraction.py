@@ -1,16 +1,16 @@
-# %%
+
 from nimare.meta.cbma import ALESubtraction
 from nimare.correct import FWECorrector
 from nilearn.reporting import get_clusters_table
 from nimare import io
 import os
-# %%
+#path setup 
 BASE = os.getcwd()
 print("PWD:", BASE)
 
 # Add dataset info check
-print("\n=== DATASET INFO ===")
-# Load existing ALE coordinate datasets
+print("\n data set info")
+# Load existing datasets
 attention_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Attention.txt")
 cognitive_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Cognitive_PT.txt")
 spatial_dset   = io.convert_sleuth_to_dataset("cleaned_sleuth/Spatial_PT_lvl2.txt")
@@ -38,14 +38,7 @@ def run_subtraction(
         n_iters=n_iters,
     )
     sub_results = sub.fit(dset1, dset2)
-    
-    print(f"Maps in results: {list(sub_results.maps.keys())}")
-    
-    # sub corr trouble shoot pls work... 
-    sub_corr = sub_results
-    
-    print(f"Using maps: {list(sub_corr.maps.keys())}")
-    
+    sub_corr = sub_results 
     prefix = f"{name1}_vs_{name2}"
     outdir = os.path.join(
         "/home/tur31606@tu.temple.edu/ALE/results",
@@ -81,13 +74,12 @@ for d1, d2, name1, name2 in contrasts:
     key = f"{name1}_vs_{name2}"
     results_dict[key] = run_subtraction(d1, d2, name1, name2)
 
-# 
 # cluster tables using z-map that was created :P
 for contrast_name, sub_corr in results_dict.items():
     if sub_corr is None:
         continue
     
-    # Use the actual z-map filenam  
+    # Use the actual z-map filenameeeee  
     nii_file = os.path.join(
         "/home/tur31606@tu.temple.edu/ALE/results",
         contrast_name,
