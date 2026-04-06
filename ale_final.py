@@ -1,3 +1,4 @@
+
 from nimare.meta.cbma import ALE, ALESubtraction
 from nimare.correct import FWECorrector
 from nilearn.reporting import get_clusters_table
@@ -15,10 +16,10 @@ os.makedirs(SUB_DIR,    exist_ok=True)
 
 print("\n data set info")
 #load datasetsssss
-attention_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Attention.txt")
-cognitive_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Cognitive_PT.txt")
-spatial_dset   = io.convert_sleuth_to_dataset("cleaned_sleuth/Spatial_PT_all.txt")
-affective_dset = io.convert_sleuth_to_dataset("cleaned_sleuth/Affective_PT.txt")
+attention_dset = io.convert_sleuth_to_studyset("cleaned_sleuth/Attention.txt")
+cognitive_dset = io.convert_sleuth_to_stuydset("cleaned_sleuth/Cognitive_PT.txt")
+spatial_dset   = io.convert_sleuth_to_studyset("cleaned_sleuth/Spatial_PT_all.txt")
+affective_dset = io.convert_sleuth_to_studyset("cleaned_sleuth/Affective_PT.txt")
 
 #alefit lock in
 ale = ALE(null_method="approximate")
@@ -54,6 +55,12 @@ contrasts = [
     (cognitive_dest, spatial_dset,   "cognitive", "spatial"),
     (cognitive_dset, affective_dset, "cognitive", "affective"),
     (spatial_dset,   affective_dset, "spatial",   "affective"),
+    (cognitive_dset, attention_dset, "cognitive", "attention"),
+    (spatital_dset,  attetion_dset,  "spatial",   "attention"),
+    (affective_dset, attention_dset, "affective", "attention"),
+    (spatial_dset,   cognitive_dset, "spatial",   "cognitive"),
+    (affective_dset, cognitive_dset, "affective", "cognitive"),
+    (affective_dset, spatial_dset,   "affective", "spatial"),
 ]
 
 for d1, d2, n1, n2 in contrasts:
