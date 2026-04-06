@@ -1,4 +1,4 @@
-
+from nimare.nimads import Studyset
 from nimare.meta.cbma import ALE, ALESubtraction
 from nimare.correct import FWECorrector
 from nilearn.reporting import get_clusters_table
